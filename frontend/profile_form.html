@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan-To-Save - Create Profile</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <div class="brand">Scan-To<span class="brand-highlight">-Save</span></div>
+            <a href="{{ url_for('index') }}" class="nav-link">Back to Dashboard</a>
+        </div>
+    </nav>
+
+    <!-- Form Container -->
+    <div class="container">
+        <div class="form-container">
+            <h1>Create Your Profile</h1>
+
+            <form action="{{ url_for('generate_profile') }}" method="POST">
+                <input type="hidden" name="template" value="{{ template }}">
+
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="blood_group">Blood Group</label>
+                    <select id="blood_group" name="blood_group" required>
+                        <option value="">Select Blood Group</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="purpose">Primary Purpose</label>
+                    <select id="purpose" name="purpose" required>
+                        <option value="">Select Purpose</option>
+                        <option value="Medical ID">Medical ID</option>
+                        <option value="Motorcycle Helmet">Motorcycle Helmet</option>
+                        <option value="Pet Tag (Dog/Cat)">Pet Tag (Dog/Cat)</option>
+                        <option value="General Identification">General Identification</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password (for viewing sensitive info)</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="emergency_contact">Emergency Contact</label>
+                    <input type="text" id="emergency_contact" name="emergency_contact">
+                </div>
+
+                <div class="form-group">
+                    <label for="medical_conditions">Medical Conditions</label>
+                    <textarea id="medical_conditions" name="medical_conditions" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="allergies">Allergies</label>
+                    <textarea id="allergies" name="allergies" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="medications">Current Medications</label>
+                    <textarea id="medications" name="medications" rows="3"></textarea>
+                </div>
+
+                <!-- GDPR Consent Section -->
+                <div class="gdpr-consent-box">
+                    <div class="gdpr-header">
+                        <span class="gdpr-icon">&#x1F6E1;</span>
+                        <div>
+                            <h3 class="gdpr-title">GDPR Data Consent</h3>
+                            <p class="gdpr-subtitle">General Data Protection Regulation &mdash; EU 2016/679</p>
+                        </div>
+                    </div>
+
+                    <p class="gdpr-body">
+                        Before submitting, please read and acknowledge how your personal and medical data will be used by <strong>Scan-To-Save</strong>:
+                    </p>
+
+                    <ul class="gdpr-list">
+                        <li>&#x2714; Your data is stored securely and used <strong>only</strong> for emergency identification purposes.</li>
+                        <li>&#x2714; Your profile will be <strong>accessible via QR code</strong> to first responders or any person who scans it.</li>
+                        <li>&#x2714; You have the right to <strong>access, rectify, or erase</strong> your data at any time.</li>
+                        <li>&#x2714; No data will be shared with third parties without your explicit consent.</li>
+                        <li>&#x2714; Your data is retained until you choose to delete your profile.</li>
+                    </ul>
+
+                    <div class="gdpr-checkbox-row">
+                        <input type="checkbox" id="gdpr_consent" name="gdpr_consent" required class="gdpr-checkbox">
+                        <label for="gdpr_consent" class="gdpr-checkbox-label">
+                            I have read and understood the above terms. I freely give my consent to store and process my personal and medical data in accordance with the GDPR.
+                        </label>
+                    </div>
+                </div>
+
+                <div class="button-container" style="margin-top: 1.5rem;">
+                    <button type="submit" class="submit-button gdpr-submit-btn" id="gdpr-submit">
+                        &#x1F512;&nbsp; I Agree &amp; Generate QR Code
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy;2025 Team Codex. </p>
+        </div>
+    </footer>
+</body>
+</html>

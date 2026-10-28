@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan-To-Save - QR Code Scanner</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <div class="brand">Scan-To-<span class="brand-highlight">Save</span></div>
+            <a href="{{ url_for('index') }}" class="nav-link">Back to Dashboard</a>
+        </div>
+    </nav>
+
+    <!-- Scanner Content -->
+    <main>
+        <div class="scanner-container">
+            <div class="scanner-card">
+                <h1 class="scanner-title">QR Code Scanner</h1>
+                
+                <!-- Video Container -->
+                <div class="video-container">
+                    <video id="qr-video" playsinline></video>
+                </div>
+
+                <!-- Status Message -->
+                <div id="status"></div>
+
+                <!-- Hidden Canvas -->
+                <canvas id="qr-canvas"></canvas>
+            </div>
+        </div>
+    </main>
+
+    <!-- Password Modal -->
+    <div id="modal-backdrop"></div>
+    <div id="password-modal">
+        <h3 class="modal-title">Enter Password</h3>
+        
+        <div class="input-group">
+            <input 
+                type="password" 
+                id="password-input"
+                class="password-input"
+                placeholder="Enter password"
+            >
+        </div>
+
+        <div class="button-group">
+            <button onclick="closeModal()" class="button button-secondary">
+                Cancel
+            </button>
+            <button onclick="verifyPassword()" class="button button-primary">
+                Submit
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 Team CodeX </p>
+        </div>
+    </footer>
+
+    <script>
+        let currentProfileId = null;
+        let video = document.getElementById('qr-video');
+        let canvasElement = document.getElementById('qr-canvas');
+        let canvas = canvasElement.getContext('2d');
+        let scanning = false;
+
+        // Request camera access and start scanning
+        navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "environment" }
+        }).then(function(stream) {
+            video.srcObject = stream;
+            video.setAttribute('playsinline', true); // required for iOS Safari
+            video.play();
+            requestAnimationFrame(tick);
+            document.getElementById('status').textContent = 'Scanning for QR Code...';
+        }).catch(function(err) {
+            document.getElementById('status').textContent = 'Error accessing camera: ' + err.message;
+        });
+
+        function tick() {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvasElement.height = video.videoHeight;
+                canvasElement.width = video.videoWidth;
+                canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+                let imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                let code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "dontInvert",
+                });
+                if (code && !scanning) {
+                    scanning = true;
+                    handleQRCode(code.data);
+                }
+            }
+            if (!scanning) {
+                requestAnimationFrame(tick);
+            }
+        }
+
+        function handleQRCode(decodedText) {
+            try {
+                const url = new URL(decodedText);
+                const pathParts = url.pathname.split('/');
+                currentProfileId = pathParts[pathParts.length - 1];
+                document.getElementById('modal-backdrop').style.display = 'block';
+                document.getElementById('password-modal').style.display = 'block';
+                document.getElementById('status').textContent = 'QR Code detected! Please enter password.';
+            } catch (e) {
+                document.getElementById('status').textContent = 'Invalid QR Code. Please try again.';
+                scanning = false;
+                requestAnimationFrame(tick);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modal-backdrop').style.display = 'none';
+            document.getElementById('password-modal').style.display = 'none';
+            document.getElementById('password-input').value = '';
+            scanning = false;
+            requestAnimationFrame(tick);
+            document.getElementById('status').textContent = 'Scanning for QR Code...';
+        }
+
+        async function verifyPassword() {
+            const password = document.getElementById('password-input').value;
+            try {
+                const response = await fetch(`/verify_password/${currentProfileId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ password: password })
+                });
+                const data = await response.json();
+                if (data.valid) {
+                    const stream = video.srcObject;
+                    const tracks = stream.getTracks();
+                    tracks.forEach(track => track.stop());
+                    window.location.href = `/edit_profile/${currentProfileId}`;
+                } else {
+                    document.getElementById('status').textContent = 'Invalid password. Please try again.';
+                    closeModal();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('status').textContent = 'Error verifying password. Please try again.';
+                closeModal();
+            }
+        }
+
+        // Handle Enter key in password input
+        document.getElementById('password-input').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                verifyPassword();
+            }
+        });
+    </script>
+</body>
+</html>

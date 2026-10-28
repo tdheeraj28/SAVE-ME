@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan-To-Save - Profile View</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <div class="brand">Scan-To<span class="brand-highlight">-Save</span></div>
+            <a href="{{ url_for('index') }}" class="nav-link">Back to Dashboard</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="card">
+            <h1 class="title">Profile Details</h1>
+            
+            <div class="mb-6 flex justify-center">
+                {% if profile.risk_level == 'High Risk' %}
+                <span style="background-color: #FEE2E2; color: #DC2626; padding: 0.5rem 1rem; border-radius: 9999px; font-weight: bold; font-size: 0.875rem; border: 1px solid #F87171;">
+                    ⚠️ High Patient Risk
+                </span>
+                {% elif profile.risk_level == 'Medium Risk' %}
+                <span style="background-color: #FEF3C7; color: #D97706; padding: 0.5rem 1rem; border-radius: 9999px; font-weight: bold; font-size: 0.875rem; border: 1px solid #FBBF24;">
+                    Moderate Risk
+                </span>
+                {% else %}
+                <span style="background-color: #D1FAE5; color: #059669; padding: 0.5rem 1rem; border-radius: 9999px; font-weight: bold; font-size: 0.875rem; border: 1px solid #34D399;">
+                    Low Risk Baseline
+                </span>
+                {% endif %}
+            </div>
+            
+            <div class="profile-section">
+                <h2 class="profile-label">Name</h2>
+                <p class="profile-value">{{ profile.name }}</p>
+            </div>
+
+            <div class="profile-section">
+                <h2 class="profile-label">Phone</h2>
+                <p class="profile-value">{{ profile.phone }}</p>
+            </div>
+
+            <div class="profile-section">
+                <h2 class="profile-label">Blood Group</h2>
+                <p class="profile-value">{{ profile.blood_group }}</p>
+            </div>
+            
+            <div class="profile-section">
+                <h2 class="profile-label">Primary Purpose</h2>
+                <p class="profile-value">{{ profile.purpose }}</p>
+            </div>
+            <div class="profile-section">
+                <h2 class="profile-label">Emergency Contacts
+                </h2>
+                <p class="profile-value">{{ profile.emergency_contact }}</p>
+            </div>
+            <div class="profile-section">
+                <h2 class="profile-label">Medical Conditions
+                </h2>
+                <p class="profile-value">{{ profile.medical_conditions }}</p>
+            </div>
+            <div class="profile-section">
+                <h2 class="profile-label">Allergies
+                </h2>
+                <p class="profile-value">{{ profile.allergies }}</p>
+            </div>
+            <div class="profile-section">
+                <h2 class="profile-label">Current Medications
+                </h2>
+                <p class="profile-value">{{ profile.medications }}</p>
+            </div>
+
+            <div class="button-group">
+                    <button onclick="sendEmergencyAlert()" class="button button-primary">Send Emergency Alert</button>
+                </a>
+                
+            </div>
+            <!-- Emergency Button -->
+            <div style="margin-top: 1rem;">
+                <button class="button button-primary" style="background-color: red;" onclick="findNearbyHospitals()">
+                    🚑 Emergency - Find Nearby Hospitals
+                </button>
+            </div>
+
+            <div style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem; text-align: center;">
+                <p style="font-size: 0.75rem; color: #999;">
+                    Information provided voluntarily. <br>
+                    Record Created: {{ profile.created_at }}
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 Team CodeX.</p>
+        </div>
+    </footer>
+
+    <script>
+        function callEmergencyContact() {
+            var contact = "{{ profile.emergency_contact }}";
+            if (contact) {
+                window.location.href = "tel:+91" + contact;
+            } else {
+                alert("Emergency contact not available.");
+            }
+        }
+        function findNearbyHospitals() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var lat = position.coords.latitude;
+                var lon = position.coords.longitude;
+                var googleMapsUrl = `https://www.google.com/maps/search/hospitals/@${lat},${lon},14z`;
+                window.open(googleMapsUrl, '_blank');
+            }, function(error) {
+                alert("Location access denied or unavailable. Please enable location services.");
+            });
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+
+    </script>
+    <!-- <h1>Emergency Live Location</h1>
+    <button onclick="sendEmergencyAlert()">🚨 Send Emergency Alert</button> -->
+    
+    <script>
+        function sendEmergencyAlert() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var contact = "{{ profile.emergency_contact }}";
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    const emergencyContact = "+91" + contact; // Replace with actual emergency contact
+    
+                    fetch("/send_emergency", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ latitude, longitude, emergency_contact: emergencyContact }),
+                    })
+                    .then(response => response.json())
+                    .then(data => alert(data.message || data.error))
+                    .catch(error => console.error("Error:", error));
+                }, function(error) {
+                    alert("Error getting location: " + error.message);
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+    </script>
+</body>
+</html>
