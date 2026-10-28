@@ -29,6 +29,13 @@ import os
 # from flask_pwa import PWA
 
 import os
+import sys
+
+# Ensure backend directory is always in sys.path
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
 from database import init_db, get_db
 
 app = Flask(__name__, template_folder='../frontend', static_folder='../frontend')
@@ -560,5 +567,7 @@ def seed_live_data():
         conn.close()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    debug_mode = os.environ.get('FLASK_ENV') != 'production'
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)
 

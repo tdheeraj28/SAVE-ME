@@ -1,0 +1,8 @@
+venv/
+.git/
+*.pyc
+__pycache__/
+*.db
+.env
+run.bat
+run.ps1

@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: scan-to-save
+    name: save-me
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app

@@ -1,8 +1,11 @@
 import sqlite3
+import os
+
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'profiles.db')
 
 def init_db():
     """Initialize the SQLite database and create tables if they don't exist"""
-    conn = sqlite3.connect('profiles.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     
     # 1. Core profiles table
@@ -60,6 +63,6 @@ def init_db():
 
 def get_db():
     """Get database connection"""
-    conn = sqlite3.connect('profiles.db')
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row  # This enables name-based access to columns
     return conn

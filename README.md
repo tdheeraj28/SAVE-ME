@@ -170,5 +170,42 @@ The risk scoring pipeline in [`ml_risk_scorer.py`](backend/ml_risk_scorer.py) ut
 
 ---
 
+## ☁️ Cloud Deployment Guide
+
+The repository includes pre-configured deployment manifests for instant hosting:
+
+### Option 1: Deploy on Render (Recommended - Free Tier)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com)
+
+1. Log in to [Render](https://dashboard.render.com/).
+2. Click **New +** and select **Blueprint**.
+3. Connect your GitHub repository: `https://github.com/tdheeraj28/SAVE-ME`.
+4. Render will automatically detect `render.yaml` and configure the build & start commands:
+   - **Build Command**: `pip install -r backend/requirements.txt`
+   - **Start Command**: `gunicorn --chdir backend app:app`
+5. Click **Apply** to deploy. Your live URL will be generated in 2–3 minutes.
+
+### Option 2: Deploy on Railway
+
+1. Go to [Railway](https://railway.app/).
+2. Click **New Project** → **Deploy from GitHub repo**.
+3. Select `tdheeraj28/SAVE-ME`.
+4. Railway automatically detects the root `Procfile` / `Dockerfile` and deploys your service.
+5. In project **Settings** → **Networking**, click **Generate Domain** to get your public HTTPS link.
+
+### Option 3: Deploy with Docker
+
+```bash
+# Build the container
+docker build -t save-me .
+
+# Run the container locally or on any cloud server
+docker run -p 5000:5000 save-me
+```
+
+---
+
 ## 📄 License
 This project is open-source under the MIT License.
+
